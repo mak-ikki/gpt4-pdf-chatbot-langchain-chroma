@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
+
 import { Chroma } from 'langchain/vectorstores/chroma';
 import { makeChain } from '@/utils/makechain';
 import { COLLECTION_NAME } from '@/config/chroma';
+import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,17 +24,15 @@ export default async function handler(
   }
   // OpenAI recommends replacing newlines with spaces for best results
   const sanitizedQuestion = question.trim().replaceAll('\n', ' ');
-
+  const embeddings = new OllamaEmbeddings({
+    model: 'mistral',
+  });
   try {
-
     /* create vectorstore*/
     const vectorStore = await Chroma.fromExistingCollection(
-      new OpenAIEmbeddings({}),
-      {
-        collectionName: COLLECTION_NAME,
-       },
+      embeddings, { collectionName: COLLECTION_NAME },
     );
-
+    console.log('vectorStore', vectorStore)
     //create chain
     const chain = makeChain(vectorStore);
     //Ask a question using chat history

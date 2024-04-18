@@ -25,7 +25,7 @@ export default function Home() {
   }>({
     messages: [
       {
-        message: 'Hi, what would you like to learn about this legal case?',
+        message: 'Salut, comment puis-je vous aider aujourd\'hui?',
         type: 'apiMessage',
       },
     ],

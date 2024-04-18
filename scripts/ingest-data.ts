@@ -1,12 +1,13 @@
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
+import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
+
 import { Chroma } from 'langchain/vectorstores/chroma';
 import { CustomPDFLoader } from '@/utils/customPDFLoader';
 import { COLLECTION_NAME } from '@/config/chroma';
 import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 
 /* Name of directory to retrieve your files from */
-const filePath = 'docs';
+const filePath = `backlog/${COLLECTION_NAME}`;
 
 export const run = async () => {
   try {
@@ -25,15 +26,55 @@ export const run = async () => {
     });
 
     const docs = await textSplitter.splitDocuments(rawDocs);
-    console.log('split docs', docs);
-
+    /* const docs = [
+      {
+        pageContent: `Tortoise: Labyrinth? Labyrinth? Could it Are we in the notorious Little
+        Harmonic Labyrinth of the dreaded Majotaur?`,
+        metadata: {
+          speaker: "Tortoise",
+        },
+      },
+      {
+        pageContent: "Achilles: Yiikes! What is that?",
+        metadata: {
+          speaker: "Achilles",
+        },
+      },
+      {
+        pageContent: `Tortoise: They say-although I person never believed it myself-that an I
+        Majotaur has created a tiny labyrinth sits in a pit in the middle of
+        it, waiting innocent victims to get lost in its fears complexity.
+        Then, when they wander and dazed into the center, he laughs and
+        laughs at them-so hard, that he laughs them to death!`,
+        metadata: {
+          speaker: "Tortoise",
+        },
+      },
+      {
+        pageContent: "Achilles: Oh, no!",
+        metadata: {
+          speaker: "Achilles",
+        },
+      },
+      {
+        pageContent: "Tortoise: But it's only a myth. Courage, Achilles.",
+        metadata: {
+          speaker: "Tortoise",
+        },
+      },
+    ];
+ */    console.log('split docs', docs);
     console.log('creating vector store...');
     /*create and store the embeddings in the vectorStore*/
-    const embeddings = new OpenAIEmbeddings();
+    const embeddings = new OllamaEmbeddings({
+      model: 'mistral',
+    });
 
-    let chroma = new Chroma(embeddings, {collectionName: COLLECTION_NAME})
-    await chroma.index?.reset()
-    
+    let chroma = new Chroma(embeddings, {
+      collectionName: COLLECTION_NAME,
+    });
+    await chroma.index?.reset();
+
     //embed the PDF documents
 
     // Ingest documents in batches of 100
